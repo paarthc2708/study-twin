@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics Dashboard | StudyTwin AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#131b2e",
+                        "secondary-container": "#e0e3e5",
+                        "on-primary-container": "#fffbff",
+                        "primary-container": "#6063ee",
+                        "secondary-fixed": "#e0e3e5",
+                        "on-secondary-fixed": "#191c1e",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "outline": "#767586",
+                        "tertiary": "#6b38d4",
+                        "surface": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#8455ef",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-surface-variant": "#464554",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#23005c",
+                        "background": "#faf8ff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#eaedff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#c4c7c9",
+                        "surface-tint": "#494bd6",
+                        "surface-variant": "#dae2fd",
+                        "primary": "#4648d4",
+                        "on-secondary-fixed-variant": "#444749",
+                        "secondary": "#5c5f61",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary-container": "#626567",
+                        "surface-dim": "#d2d9f4",
+                        "outline-variant": "#c7c4d7",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed": "#e9ddff",
+                        "on-tertiary-container": "#fffbff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#07006c",
+                        "on-background": "#131b2e",
+                        "inverse-primary": "#c0c1ff",
+                        "surface-container-high": "#e2e7ff",
+                        "inverse-surface": "#283044",
+                        "on-tertiary-fixed-variant": "#5516be"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "gutter": "24px",
+                        "2xl": "80px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "container-max": "1200px",
+                        "sm": "8px",
+                        "unit": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "mono-code": ["jetbrainsMono"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "mono-code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1/1;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .chart-bar {
+            transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .glow-effect {
+            animation: pulse-glow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex overflow-x-hidden">
+<!-- Side Navigation Shell -->
+<aside class="w-[260px] h-screen sticky left-0 top-0 bg-surface/80 backdrop-blur-xl border-r border-white/30 shadow-[0px_10px_30px_rgba(0,0,0,0.03)] flex flex-col py-lg z-40">
+<div class="px-lg mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">StudyTwin AI</h1>
+<p class="font-body-md text-on-surface-variant opacity-70">Learning Partner</p>
+</div>
+<nav class="flex-1 space-y-unit">
+<!-- Nav Items Mapping -->
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../dashboard_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../ai_mentor_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">psychology</span>
+<span class="font-body-md">AI Mentor</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../quiz_generator_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">quiz</span>
+<span class="font-body-md">Quiz</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../study_strategy_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">auto_stories</span>
+<span class="font-body-md">Strategy</span>
+</a>
+<!-- Active State: Analytics -->
+<a class="flex items-center px-lg py-md text-primary font-bold border-r-4 border-primary bg-primary/5 transition-all duration-200" href="../learning_analytics_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">analytics</span>
+<span class="font-body-md">Analytics</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../my_digital_twin_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">smart_toy</span>
+<span class="font-body-md">Digital Twin</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../settings_studytwin_ai/code.html">
+<span class="material-symbols-outlined mr-md">person</span>
+<span class="font-body-md">Profile</span>
+</a>
+</nav>
+<div class="px-lg pt-xl border-t border-white/30">
+<div class="flex items-center gap-md">
+<img class="w-10 h-10 rounded-full border-2 border-primary/20" data-alt="A professional, high-resolution close-up portrait of a young adult student with a friendly expression. They are wearing modern glasses and a neutral-colored sweater, set against a blurred, bright minimalist workspace background. The lighting is soft and natural, emphasizing a high-fidelity, premium educational app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoBmH0Y9TKBGJ_CIa1UcnTCDnvn2izd8Jyb3il9IA1zq2q3OCcFgU5EXOYitGf7PE06xSWaKap3FkiUFoyapaG8riHrc-XKV-GfI4OOnvjiuV34Enn0tF7vkIjFsLj2ANwn3vouupJF6kNUvd_L44Q2BwdWoGo-2nU4h1GkhX0mSTBElBQLmfq8iKmgSK1nKqDu4W3cd1las-lq2uyE6nzMFJoKreW_SFOGCMS2_zE1hwN-K2jfO0ZfKjzB3dJP78mqlQtGjFXDw"/>
+<div>
+<p class="font-label-sm text-on-surface font-bold">Alex Rivera</p>
+<p class="text-[12px] text-on-surface-variant">Pro Learner</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 relative overflow-y-auto">
+<!-- Top Navigation Shell -->
+<header class="w-full top-0 sticky z-30 bg-surface/60 backdrop-blur-xl border-b border-white/30 shadow-sm h-16 flex justify-between items-center px-lg">
+<div class="flex items-center gap-md w-1/3">
+<div class="relative w-full max-w-xs group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 py-2 text-label-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search analytics..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<button class="relative text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline/20"></div>
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-primary font-bold">Current Streak: 12 Days</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="max-w-container-max mx-auto p-lg space-y-xl">
+<!-- Hero Section / Top Metrics -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Overall Completion Circular Indicator -->
+<div class="md:col-span-4 glass-card rounded-2xl p-lg flex flex-col items-center justify-center text-center shadow-[0px_10px_30px_rgba(0,0,0,0.03)] relative overflow-hidden">
+<div class="absolute -top-20 -left-20 w-40 h-40 bg-primary/10 blur-[100px] glow-effect"></div>
+<div class="absolute -bottom-20 -right-20 w-40 h-40 bg-tertiary/10 blur-[100px] glow-effect"></div>
+<h3 class="font-label-sm text-on-surface-variant mb-md uppercase tracking-wider">Curriculum Mastery</h3>
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-highest" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-width="12"></circle>
+<circle class="progress-ring__circle" cx="96" cy="96" fill="transparent" r="80" stroke="url(#gradient-primary)" stroke-dasharray="502.6" stroke-dashoffset="125.6" stroke-width="12"></circle>
+<defs>
+<lineargradient id="gradient-primary" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4648d4"></stop>
+<stop offset="100%" stop-color="#8455ef"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-primary">75%</span>
+<span class="font-label-sm text-on-surface-variant">Complete</span>
+</div>
+</div>
+<p class="mt-lg font-body-md text-on-surface-variant">You've mastered <span class="font-bold text-primary">42 of 56</span> core concepts this semester.</p>
+</div>
+<!-- Study Hours Line Chart -->
+<div class="md:col-span-8 glass-card rounded-2xl p-lg shadow-[0px_10px_30px_rgba(0,0,0,0.03)]">
+<div class="flex justify-between items-center mb-xl">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Study Hours per Week</h3>
+<p class="font-label-sm text-on-surface-variant">Tracking your focus time across the last 7 days</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-unit rounded-full bg-primary/10 text-primary font-label-sm border border-primary/20 transition-all">Week</button>
+<button class="px-md py-unit rounded-full hover:bg-surface-container text-on-surface-variant font-label-sm transition-all">Month</button>
+</div>
+</div>
+<!-- Placeholder for Line Chart -->
+<div class="relative h-64 w-full flex items-end justify-between px-md">
+<!-- Simulated Chart Path -->
+<svg class="absolute inset-0 w-full h-full px-md pb-8 overflow-visible" preserveaspectratio="none">
+<path d="M0 160 Q 50 140, 100 180 T 200 120 T 300 150 T 400 60 T 500 100 T 600 40 T 700 80" fill="none" stroke="url(#line-grad)" stroke-linecap="round" stroke-width="4"></path>
+<defs>
+<lineargradient id="line-grad" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#4648d4"></stop>
+<stop offset="100%" stop-color="#8455ef"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Labels -->
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>4h</span><div class="w-1 h-1 rounded-full bg-primary"></div><span>Mon</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>3.2h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Tue</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>5h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Wed</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>4.1h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Thu</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>6.5h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Fri</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>5.8h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Sat</span></div>
+<div class="flex flex-col items-center gap-unit text-label-sm text-on-surface-variant z-10"><span>7.2h</span><div class="w-1 h-1 rounded-full bg-primary/40"></div><span>Sun</span></div>
+</div>
+</div>
+</section>
+<!-- Quiz Scores & Topic Mastery -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Bar Chart: Quiz Scores -->
+<div class="lg:col-span-7 glass-card rounded-2xl p-lg shadow-[0px_10px_30px_rgba(0,0,0,0.03)]">
+<h3 class="font-headline-md text-headline-md mb-lg">Quiz Scores by Subject</h3>
+<div class="flex items-end justify-around h-72 pt-xl border-b border-outline-variant pb-md">
+<div class="flex flex-col items-center gap-md group w-12">
+<span class="text-label-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold">92%</span>
+<div class="w-full bg-primary rounded-t-lg chart-bar" style="height: 92%"></div>
+<span class="text-label-sm text-on-surface-variant -rotate-45 mt-lg">Bio</span>
+</div>
+<div class="flex flex-col items-center gap-md group w-12">
+<span class="text-label-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold">78%</span>
+<div class="w-full bg-primary/80 rounded-t-lg chart-bar" style="height: 78%"></div>
+<span class="text-label-sm text-on-surface-variant -rotate-45 mt-lg">Chem</span>
+</div>
+<div class="flex flex-col items-center gap-md group w-12">
+<span class="text-label-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold">85%</span>
+<div class="w-full bg-primary/60 rounded-t-lg chart-bar" style="height: 85%"></div>
+<span class="text-label-sm text-on-surface-variant -rotate-45 mt-lg">Phys</span>
+</div>
+<div class="flex flex-col items-center gap-md group w-12">
+<span class="text-label-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold">64%</span>
+<div class="w-full bg-error/60 rounded-t-lg chart-bar" style="height: 64%"></div>
+<span class="text-label-sm text-on-surface-variant -rotate-45 mt-lg">Calc</span>
+</div>
+<div class="flex flex-col items-center gap-md group w-12">
+<span class="text-label-sm opacity-0 group-hover:opacity-100 transition-opacity font-bold">96%</span>
+<div class="w-full bg-primary rounded-t-lg chart-bar" style="height: 96%"></div>
+<span class="text-label-sm text-on-surface-variant -rotate-45 mt-lg">Hist</span>
+</div>
+</div>
+</div>
+<!-- Topic Mastery Grid -->
+<div class="lg:col-span-5 flex flex-col gap-md">
+<h3 class="font-headline-md text-headline-md">Topic Mastery</h3>
+<div class="grid grid-cols-2 gap-md">
+<div class="glass-card p-md rounded-xl flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-center">
+<span class="bg-primary/10 text-primary px-sm py-xs rounded-full text-[10px] font-bold uppercase">Biology</span>
+<span class="font-label-sm font-bold">88%</span>
+</div>
+<p class="font-body-md font-semibold">Cell Structure</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[88%]"></div>
+</div>
+</div>
+<div class="glass-card p-md rounded-xl flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-center">
+<span class="bg-tertiary/10 text-tertiary px-sm py-xs rounded-full text-[10px] font-bold uppercase">Chemistry</span>
+<span class="font-label-sm font-bold">72%</span>
+</div>
+<p class="font-body-md font-semibold">Organic Chem</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[72%]"></div>
+</div>
+</div>
+<div class="glass-card p-md rounded-xl flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-center">
+<span class="bg-primary/10 text-primary px-sm py-xs rounded-full text-[10px] font-bold uppercase">Physics</span>
+<span class="font-label-sm font-bold">45%</span>
+</div>
+<p class="font-body-md font-semibold">Thermodynamics</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error w-[45%]"></div>
+</div>
+</div>
+<div class="glass-card p-md rounded-xl flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-center">
+<span class="bg-tertiary/10 text-tertiary px-sm py-xs rounded-full text-[10px] font-bold uppercase">Math</span>
+<span class="font-label-sm font-bold">94%</span>
+</div>
+<p class="font-body-md font-semibold">Calculus III</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[94%]"></div>
+</div>
+</div>
+</div>
+<button class="w-full py-md border border-primary/30 text-primary font-bold rounded-xl hover:bg-primary/5 transition-all">View All Topics</button>
+</div>
+</section>
+<!-- Consistency Heatmap -->
+<section class="glass-card rounded-2xl p-lg shadow-[0px_10px_30px_rgba(0,0,0,0.03)]">
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h3 class="font-headline-md text-headline-md mb-xs">Learning Consistency</h3>
+<p class="font-label-sm text-on-surface-variant">Daily activity over the last 6 months</p>
+</div>
+<div class="flex items-center gap-sm font-label-sm text-on-surface-variant">
+<span>Less</span>
+<div class="w-3 h-3 bg-surface-container-highest rounded-[2px]"></div>
+<div class="w-3 h-3 bg-primary/20 rounded-[2px]"></div>
+<div class="w-3 h-3 bg-primary/50 rounded-[2px]"></div>
+<div class="w-3 h-3 bg-primary rounded-[2px]"></div>
+<span>More</span>
+</div>
+</div>
+<div class="grid grid-cols-[repeat(26,1fr)] gap-2 overflow-x-auto pb-md">
+<!-- Javascript generated cells would go here, manually adding a few rows for visualization -->
+<script>
+                        document.write(Array.from({length: 26 * 7}).map(() => {
+                            const levels = ['bg-surface-container-highest', 'bg-primary/20', 'bg-primary/40', 'bg-primary/70', 'bg-primary'];
+                            const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+                            return `<div class="heatmap-cell ${randomLevel} w-full h-3"></div>`;
+                        }).join(''));
+                    </script>
+</div>
+<div class="flex justify-between mt-md px-md text-label-sm text-on-surface-variant font-mono-code">
+<span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span>
+</div>
+</section>
+<!-- Learning Insights (Bento Layout) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="glass-card rounded-2xl p-lg flex flex-col gap-md">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<h4 class="font-headline-md text-headline-md">AI Insights</h4>
+<p class="font-body-md text-on-surface-variant">Your retention is 15% higher during morning sessions. Consider scheduling heavy topics before 10 AM.</p>
+</div>
+<div class="glass-card rounded-2xl p-lg flex flex-col gap-md">
+<div class="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<h4 class="font-headline-md text-headline-md">Peak Focus</h4>
+<p class="font-body-md text-on-surface-variant">You've maintained a deep focus state for an average of 42 minutes per session this week.</p>
+</div>
+<div class="glass-card rounded-2xl p-lg flex flex-col gap-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">psychology_alt</span>
+</div>
+<h4 class="font-headline-md text-headline-md">Memory Decay</h4>
+<p class="font-body-md text-on-surface-variant">Three topics from 'Organic Chemistry' are nearing their review date. Start a refresh quiz soon.</p>
+</div>
+</section>
+</div>
+<!-- Footer Shell -->
+<footer class="w-full py-xl border-t border-outline-variant bg-surface mt-2xl">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center px-lg gap-md">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">StudyTwin AI</h2>
+<p class="font-label-sm text-secondary">© 2024 StudyTwin AI. All rights reserved.</p>
+</div>
+<div class="flex gap-lg">
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Help Center</a>
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating Action Button Contextual Support -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform z-50">
+<span class="material-symbols-outlined">smart_toy</span>
+</button>
+<script>
+        // Micro-interactions and Chart animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate progress ring on load
+            const circle = document.querySelector('.progress-ring__circle');
+            if (circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                circle.style.strokeDashoffset = circumference;
+                
+                setTimeout(() => {
+                    // Set to 75% as per UI text
+                    const offset = circumference - (0.75 * circumference);
+                    circle.style.strokeDashoffset = offset;
+                }, 500);
+            }
+
+            // Simple reveal for bars
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach((bar, index) => {
+                const finalHeight = bar.style.height;
+                bar.style.height = '0%';
+                setTimeout(() => {
+                    bar.style.height = finalHeight;
+                }, 300 + (index * 100));
+            });
+        });
+    </script>
+</body></html>

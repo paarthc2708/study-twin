@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Mentor - StudyTwin AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#131b2e",
+                    "secondary-container": "#e0e3e5",
+                    "on-primary-container": "#fffbff",
+                    "primary-container": "#6063ee",
+                    "secondary-fixed": "#e0e3e5",
+                    "on-secondary-fixed": "#191c1e",
+                    "tertiary-fixed-dim": "#d0bcff",
+                    "outline": "#767586",
+                    "tertiary": "#6b38d4",
+                    "surface": "#faf8ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f2f3ff",
+                    "surface-bright": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#8455ef",
+                    "inverse-on-surface": "#eef0ff",
+                    "on-surface-variant": "#464554",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#23005c",
+                    "background": "#faf8ff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#eaedff",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "surface-tint": "#494bd6",
+                    "surface-variant": "#dae2fd",
+                    "primary": "#4648d4",
+                    "on-secondary-fixed-variant": "#444749",
+                    "secondary": "#5c5f61",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#e1e0ff",
+                    "on-secondary-container": "#626567",
+                    "surface-dim": "#d2d9f4",
+                    "outline-variant": "#c7c4d7",
+                    "surface-container-highest": "#dae2fd",
+                    "tertiary-fixed": "#e9ddff",
+                    "on-tertiary-container": "#fffbff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#07006c",
+                    "on-background": "#131b2e",
+                    "inverse-primary": "#c0c1ff",
+                    "surface-container-high": "#e2e7ff",
+                    "inverse-surface": "#283044",
+                    "on-tertiary-fixed-variant": "#5516be"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "2xl": "80px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "container-max": "1200px",
+                    "sm": "8px",
+                    "unit": "4px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "mono-code": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "mono-code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.03);
+        }
+        .ai-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(70, 72, 212, 0.08) 0%, rgba(132, 85, 239, 0.05) 50%, transparent 100%);
+            filter: blur(60px);
+            z-index: -1;
+            pointer-events: none;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e7ff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex overflow-hidden">
+<!-- SideNavBar Shell -->
+<aside class="w-[260px] h-screen sticky left-0 top-0 flex flex-col py-lg bg-surface/80 backdrop-blur-xl border-r border-white/30 shadow-[0px_10px_30px_rgba(0,0,0,0.03)] z-40">
+<div class="px-lg mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">StudyTwin AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Learning Partner</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Navigation Items Mapping from JSON -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../dashboard_studytwin_ai/code.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-primary font-bold border-r-4 border-primary bg-primary/5 transition-all duration-200" href="../ai_mentor_studytwin_ai/code.html">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-body-md text-body-md">AI Mentor</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../quiz_generator_studytwin_ai/code.html">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-body-md text-body-md">Quiz</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../study_strategy_studytwin_ai/code.html">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-md text-body-md">Strategy</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../learning_analytics_studytwin_ai/code.html">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../my_digital_twin_studytwin_ai/code.html">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-body-md text-body-md">Digital Twin</span>
+</a>
+</nav>
+<div class="px-md mt-auto pt-lg border-t border-outline-variant/20">
+<div class="flex items-center gap-md p-md rounded-xl hover:bg-primary/5 transition-colors cursor-pointer">
+<img class="w-10 h-10 rounded-full border-2 border-primary/20" data-alt="A professional headshot of a diverse young university student, looking friendly and intelligent, wearing a modern minimalist navy blue sweater. The lighting is bright and clean, typical of a professional studio environment, with a soft-focus library background. The aesthetic is modern and high-resolution, conveying a focused and successful academic identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATzKVt4Hi00CZYbEdI0ttvNCslgK70ycR5CdnYqHwy-Z_gsF1CMtRoK80gBpn6LwkJIE814l0UfexekHJqu4hUxp9L9gYwR6X5d3Uh_PVL_8_M8EAP9B6JiknqDMFeyLbZt6jQTbY9C-8AYPABUL53YklkcpV69EcQjmZMnj8oJro5ZSjxI0acL3FV3vYq7EH3PULNpBFvp6xbTn9W57iVS_XJPxBrqfKWu_kiDaXZHhlCsgVuhnOSck0BlUIZIr_TsbLdcw9H7A"/>
+<div>
+<p class="font-label-sm text-label-sm font-bold">Alex Johnson</p>
+<p class="text-[12px] text-on-surface-variant">Free Plan</p>
+</div>
+<span class="material-symbols-outlined ml-auto text-outline">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Context -->
+<main class="flex-1 flex flex-row bg-surface overflow-hidden relative">
+<div class="ai-glow top-0 left-1/4"></div>
+<div class="ai-glow bottom-0 right-1/4"></div>
+<!-- Chat History Sidebar (Sub-navigation) -->
+<section class="w-80 flex flex-col border-r border-outline-variant/30 bg-surface-container-low/40 backdrop-blur-sm z-10">
+<div class="p-lg">
+<button class="w-full flex items-center justify-center gap-sm py-md px-lg bg-primary-container text-on-primary-container rounded-xl font-label-sm text-label-sm hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined">add</span>
+                    New Session
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto px-md space-y-md pb-lg">
+<p class="px-sm font-label-sm text-label-sm text-outline uppercase tracking-wider text-[10px]">Recent Learning</p>
+<div class="group p-md rounded-lg bg-white/60 border border-white/50 cursor-pointer hover:bg-white transition-all shadow-sm">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">science</span>
+<p class="font-label-sm text-label-sm font-semibold truncate">Quantum Physics help</p>
+</div>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">Explaining wave-particle duality...</p>
+</div>
+<div class="group p-md rounded-lg hover:bg-white/40 cursor-pointer transition-all">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-[18px] text-tertiary">account_balance</span>
+<p class="font-label-sm text-label-sm font-semibold truncate">Macroeconomics summary</p>
+</div>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">Chapter 4: Fiscal Policy effects...</p>
+</div>
+<div class="group p-md rounded-lg hover:bg-white/40 cursor-pointer transition-all">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-[18px] text-outline">language</span>
+<p class="font-label-sm text-label-sm font-semibold truncate">European History 101</p>
+</div>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">The French Revolution timeline...</p>
+</div>
+<div class="group p-md rounded-lg hover:bg-white/40 cursor-pointer transition-all">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-[18px] text-outline">code</span>
+<p class="font-label-sm text-label-sm font-semibold truncate">React Hooks Deep Dive</p>
+</div>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">useEffect vs useLayoutEffect...</p>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low">
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm">Usage</span>
+<span class="text-[11px]">85%</span>
+</div>
+<div class="w-full h-1 bg-outline-variant/30 rounded-full mt-sm overflow-hidden">
+<div class="h-full bg-primary" style="width: 85%"></div>
+</div>
+<p class="text-[10px] text-center mt-md text-on-surface-variant">Upgrade for unlimited AI insights</p>
+</div>
+</section>
+<!-- Main Chat Area -->
+<section class="flex-1 flex flex-col h-full relative">
+<!-- Top App Bar Content -->
+<header class="h-16 flex items-center justify-between px-xl bg-white/40 backdrop-blur-md border-b border-white/30 z-20">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<h2 class="font-headline-md text-[18px] font-bold">AI Study Mentor</h2>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-sm rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Message Thread -->
+<div class="flex-1 overflow-y-auto px-xl py-xl space-y-xl pb-32">
+<!-- Initial Suggestions / Empty State -->
+<div class="max-w-2xl mx-auto text-center py-2xl">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-lg">
+<span class="material-symbols-outlined text-[32px] text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold mb-sm">How can I help you study today?</h3>
+<p class="text-on-surface-variant mb-xl">Your StudyTwin AI is ready to explain complex topics, quiz you, or summarize your notes.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md text-left">
+<button class="glass-card p-md rounded-xl hover:border-primary/40 transition-all text-left">
+<p class="font-label-sm text-label-sm font-bold text-primary mb-xs">Concept Check</p>
+<p class="text-[13px] text-on-surface-variant">"Help me study for my Biology exam tomorrow"</p>
+</button>
+<button class="glass-card p-md rounded-xl hover:border-primary/40 transition-all text-left">
+<p class="font-label-sm text-label-sm font-bold text-primary mb-xs">Document Analysis</p>
+<p class="text-[13px] text-on-surface-variant">"Summarize this PDF and highlight key terms"</p>
+</button>
+<button class="glass-card p-md rounded-xl hover:border-primary/40 transition-all text-left">
+<p class="font-label-sm text-label-sm font-bold text-primary mb-xs">Active Recall</p>
+<p class="text-[13px] text-on-surface-variant">"Generate a quiz based on my lecture notes"</p>
+</button>
+<button class="glass-card p-md rounded-xl hover:border-primary/40 transition-all text-left">
+<p class="font-label-sm text-label-sm font-bold text-primary mb-xs">Quick Ref</p>
+<p class="text-[13px] text-on-surface-variant">"Create 10 flashcards for Organic Chemistry"</p>
+</button>
+</div>
+</div>
+<!-- Example AI Message -->
+<div class="flex gap-lg items-start max-w-4xl">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-tertiary flex items-center justify-center flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="glass-card p-lg rounded-2xl rounded-tl-none space-y-md">
+<p class="text-on-surface leading-relaxed">Hello Alex! I've loaded your context for <strong>Quantum Physics</strong>. What specific area should we focus on? Here is a breakdown of your current progress:</p>
+<ul class="list-disc ml-lg space-y-sm text-on-surface-variant">
+<li>Wave-particle duality (Mastered)</li>
+<li>The Schrödinger Equation (Needs review)</li>
+<li>Heisenberg Uncertainty Principle (Unexplored)</li>
+</ul>
+<div class="bg-on-surface text-surface rounded-lg p-md font-mono-code text-mono-code">
+<span class="text-tertiary-fixed-dim">const</span> physicsConstant = <span class="text-primary-fixed-dim">6.626e-34</span>; <span class="text-outline">// Planck's constant</span>
+</div>
+<p class="text-on-surface">Would you like me to <strong>Explain</strong> the Schrödinger Equation in simple terms?</p>
+</div>
+</div>
+<!-- Example User Message -->
+<div class="flex gap-lg items-start justify-end">
+<div class="bg-primary/5 border border-primary/20 p-lg rounded-2xl rounded-tr-none max-w-2xl">
+<p class="text-on-surface">Yes, please explain it like I'm five, but include the core mathematical intuition if possible.</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary/10 flex-shrink-0" data-alt="A professional headshot of a diverse young university student, looking friendly and intelligent, wearing a modern minimalist navy blue sweater. The lighting is bright and clean, typical of a professional studio environment, with a soft-focus library background. The aesthetic is modern and high-resolution, conveying a focused and successful academic identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARJPS-W-nRM0Pu4tGazxhU0ocAHyTZXrNy5DZn_I_MEZ7Yg7TkmUMRsSLiU_nTQGfcHx2_xthT6LvEiqXj0vyLzqYa2SvXDVv9icZwSUomYUMonA3sILiCqCMQL6nviXJDkOBV143UE_IGmBNGKsTt7hzikgpc0EbQHbmULURXZp0EwsXViSBvhJUWiwq54QY6sEnqvIa79tB-eJlSUfo1l8W4TSAoHTJtby9VDuAOWSFyqBwQGlBdeeDALnDilIegrxCPgg9mow"/>
+</div>
+</div>
+<!-- Floating Input Area -->
+<div class="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-surface via-surface/90 to-transparent">
+<div class="max-w-4xl mx-auto space-y-md">
+<!-- Quick Action Chips -->
+<div class="flex flex-wrap gap-sm justify-center">
+<button class="px-md py-unit bg-primary/10 text-primary border border-primary/20 rounded-full font-label-sm text-label-sm hover:bg-primary hover:text-white transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+                            Explain
+                        </button>
+<button class="px-md py-unit bg-tertiary/10 text-tertiary border border-tertiary/20 rounded-full font-label-sm text-label-sm hover:bg-tertiary hover:text-white transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">short_text</span>
+                            Summarize
+                        </button>
+<button class="px-md py-unit bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 rounded-full font-label-sm text-label-sm hover:bg-on-surface-variant hover:text-white transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">assignment</span>
+                            Generate Quiz
+                        </button>
+<button class="px-md py-unit bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 rounded-full font-label-sm text-label-sm hover:bg-on-surface-variant hover:text-white transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">style</span>
+                            Flashcards
+                        </button>
+</div>
+<!-- Input Bar -->
+<div class="glass-card rounded-2xl p-sm flex items-center gap-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all border-white/60">
+<button class="p-md text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline/60 px-sm" placeholder="Ask your StudyTwin AI anything..." type="text"/>
+<div class="flex items-center gap-sm pr-sm">
+<div class="flex items-center gap-xs px-md py-xs bg-surface-container rounded-lg group cursor-pointer">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[12px] font-bold text-primary">TWIN ON</span>
+</div>
+<button class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary-container transition-all shadow-md">
+<span class="material-symbols-outlined">arrow_upward</span>
+</button>
+</div>
+</div>
+<p class="text-[11px] text-center text-outline/60">StudyTwin AI can make mistakes. Verify important information.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Global Progress Bar (Mandate) -->
+<div class="fixed top-0 left-0 w-full h-[4px] z-[60]">
+<div class="h-full bg-gradient-to-r from-primary to-tertiary-container w-[72%] transition-all duration-1000"></div>
+</div>
+<script>
+        // Micro-interactions
+        const inputField = document.querySelector('input');
+        const sendBtn = document.querySelector('button.bg-primary.shadow-md');
+        
+        inputField.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && inputField.value.trim() !== '') {
+                // Logic for message sending animation would go here
+                inputField.value = '';
+            }
+        });
+
+        // Toggle Study Twin Logic
+        const twinToggle = document.querySelector('.bg-surface-container.group');
+        twinToggle.addEventListener('click', () => {
+            const indicator = twinToggle.querySelector('.bg-primary');
+            const text = twinToggle.querySelector('span');
+            if (text.innerText === 'TWIN ON') {
+                text.innerText = 'TWIN OFF';
+                text.className = 'text-[12px] font-bold text-outline';
+                indicator.className = 'w-2 h-2 rounded-full bg-outline';
+                twinToggle.className = 'flex items-center gap-xs px-md py-xs bg-surface-container-low border border-outline-variant/30 rounded-lg group cursor-pointer';
+            } else {
+                text.innerText = 'TWIN ON';
+                text.className = 'text-[12px] font-bold text-primary';
+                indicator.className = 'w-2 h-2 rounded-full bg-primary animate-pulse';
+                twinToggle.className = 'flex items-center gap-xs px-md py-xs bg-surface-container rounded-lg group cursor-pointer';
+            }
+        });
+    </script>
+</body></html>

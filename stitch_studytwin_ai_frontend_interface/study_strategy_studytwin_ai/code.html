@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Study Strategy Roadmap | StudyTwin AI</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Design System Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#131b2e",
+                    "secondary-container": "#e0e3e5",
+                    "on-primary-container": "#fffbff",
+                    "primary-container": "#6063ee",
+                    "secondary-fixed": "#e0e3e5",
+                    "on-secondary-fixed": "#191c1e",
+                    "tertiary-fixed-dim": "#d0bcff",
+                    "outline": "#767586",
+                    "tertiary": "#6b38d4",
+                    "surface": "#faf8ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f2f3ff",
+                    "surface-bright": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#8455ef",
+                    "inverse-on-surface": "#eef0ff",
+                    "on-surface-variant": "#464554",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#23005c",
+                    "background": "#faf8ff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#eaedff",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "surface-tint": "#494bd6",
+                    "surface-variant": "#dae2fd",
+                    "primary": "#4648d4",
+                    "on-secondary-fixed-variant": "#444749",
+                    "secondary": "#5c5f61",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#e1e0ff",
+                    "on-secondary-container": "#626567",
+                    "surface-dim": "#d2d9f4",
+                    "outline-variant": "#c7c4d7",
+                    "surface-container-highest": "#dae2fd",
+                    "tertiary-fixed": "#e9ddff",
+                    "on-tertiary-container": "#fffbff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#07006c",
+                    "on-background": "#131b2e",
+                    "inverse-primary": "#c0c1ff",
+                    "surface-container-high": "#e2e7ff",
+                    "inverse-surface": "#283044",
+                    "on-tertiary-fixed-variant": "#5516be"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "2xl": "80px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "container-max": "1200px",
+                    "sm": "8px",
+                    "unit": "4px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "mono-code": ["jetbrainsMono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "mono-code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03);
+        }
+        .bg-glow {
+            filter: blur(100px);
+            opacity: 0.15;
+            z-index: -1;
+        }
+        body {
+            background-color: #F8FAFC;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e1e0ff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Background Atmospheric Glows -->
+<div class="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary rounded-full bg-glow"></div>
+<div class="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-tertiary rounded-full bg-glow"></div>
+<div class="flex min-h-screen">
+<!-- SideNavBar - JSON Defined -->
+<aside class="w-[260px] h-screen sticky left-0 top-0 bg-surface/80 backdrop-blur-xl border-r border-white/30 shadow-[0px_10px_30px_rgba(0,0,0,0.03)] flex flex-col py-lg hidden md:flex">
+<div class="px-lg mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">StudyTwin AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Learning Partner</p>
+</div>
+<nav class="flex-1 space-y-unit">
+<!-- Dashboard -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../dashboard_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<!-- AI Mentor -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../ai_mentor_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-body-md">AI Mentor</span>
+</a>
+<!-- Quiz -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../quiz_generator_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-body-md">Quiz</span>
+</a>
+<!-- Strategy (ACTIVE) -->
+<a class="flex items-center gap-md px-lg py-md text-primary font-bold border-r-4 border-primary bg-primary/5 transition-all duration-200" href="../study_strategy_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-body-md">Strategy</span>
+</a>
+<!-- Analytics -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../learning_analytics_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md">Analytics</span>
+</a>
+<!-- Digital Twin -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../my_digital_twin_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-body-md">Digital Twin</span>
+</a>
+<!-- Profile -->
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-primary/10 transition-all duration-200" href="../settings_studytwin_ai/code.html">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-body-md">Profile</span>
+</a>
+</nav>
+<div class="px-lg mt-auto">
+<div class="flex items-center gap-md p-md glass-card rounded-xl">
+<img class="w-10 h-10 rounded-full border-2 border-primary/20" data-alt="A high-quality, professional portrait of a smiling female student with glasses, set against a blurred academic background with soft bokeh. The lighting is warm and natural, following a clean, light-mode minimalist aesthetic. The color palette features soft indigos and whites, creating a trustworthy and intelligent visual tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_hygLDgdxfIyieu-vAE6C0tIgMAcbqSX-0O1LQcw8jrfDwxeR0wmxUIiI66I7DUahsmwzTn71JSf1D1pz8x6YCAIYFfbLqDAiRBEVd18EADKk-t30-4dXeVRCLWjBVwyis4s3bYQAdtpTYkDnXEN8v7R9zjORodovrr7d5wsI3jR7TC3PylK_icCx07hm3-99ofldiNRx-6kocV65cshubbDQV_tYeR8UabM0wgOZLDIFkFDFQa1CwleFQQaRqVsg3H5usu1EBg"/>
+<div>
+<p class="font-label-sm text-on-surface font-bold">Alex Chen</p>
+<p class="text-[12px] text-on-surface-variant">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 min-w-0">
+<!-- TopNavBar - JSON Defined -->
+<header class="sticky top-0 z-50 bg-surface/60 backdrop-blur-xl border-b border-white/30 shadow-sm">
+<div class="max-w-container-max mx-auto flex justify-between items-center px-lg h-16">
+<div class="flex items-center gap-xl flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-sm pl-10 pr-md font-label-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search strategies or topics..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-unit text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="flex items-center gap-sm bg-primary text-on-primary px-md py-sm rounded-full font-label-sm shadow-sm hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span>New Plan</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="max-w-container-max mx-auto px-lg py-xl space-y-xl">
+<!-- 1. Overview: Timeline -->
+<section class="space-y-md">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Your 4-week Path to Mastery</h2>
+<p class="font-body-lg text-on-surface-variant">Focusing on <span class="font-bold text-primary">Advanced Physics &amp; Calculus</span> preparation.</p>
+</div>
+<div class="hidden md:flex gap-sm">
+<span class="px-md py-xs bg-primary/10 text-primary rounded-full font-label-sm">Week 2 of 4</span>
+<span class="px-md py-xs bg-tertiary/10 text-tertiary rounded-full font-label-sm">68% Complete</span>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-xl overflow-hidden relative">
+<div class="h-1 bg-surface-container relative rounded-full mb-lg overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-tertiary w-2/3 transition-all duration-1000"></div>
+</div>
+<div class="grid grid-cols-4 gap-gutter text-center relative">
+<div class="space-y-sm">
+<div class="w-4 h-4 bg-primary rounded-full mx-auto ring-4 ring-primary/20 shadow-sm"></div>
+<p class="font-label-sm font-bold text-on-surface">Week 1</p>
+<p class="text-[12px] text-on-surface-variant">Foundations</p>
+</div>
+<div class="space-y-sm">
+<div class="w-4 h-4 bg-primary rounded-full mx-auto ring-4 ring-primary/20 shadow-sm animate-pulse"></div>
+<p class="font-label-sm font-bold text-primary">Week 2</p>
+<p class="text-[12px] text-on-surface-variant">Deep Dive</p>
+</div>
+<div class="space-y-sm opacity-40">
+<div class="w-4 h-4 bg-outline-variant rounded-full mx-auto"></div>
+<p class="font-label-sm font-bold text-on-surface">Week 3</p>
+<p class="text-[12px] text-on-surface-variant">Application</p>
+</div>
+<div class="space-y-sm opacity-40">
+<div class="w-4 h-4 bg-outline-variant rounded-full mx-auto"></div>
+<p class="font-label-sm font-bold text-on-surface">Week 4</p>
+<p class="text-[12px] text-on-surface-variant">Review &amp; Final</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid for Core Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- 2. Weekly Plan - Calendar List (Left Column) -->
+<div class="lg:col-span-8 space-y-md">
+<h3 class="font-headline-md text-headline-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+                            Weekly Schedule
+                        </h3>
+<div class="space-y-sm">
+<!-- Monday -->
+<div class="glass-card p-lg rounded-xl flex items-center gap-lg border-l-4 border-primary hover:translate-x-2 transition-transform duration-200">
+<div class="text-center w-12 shrink-0">
+<p class="font-label-sm text-outline uppercase">Mon</p>
+<p class="font-headline-md text-primary">14</p>
+</div>
+<div class="flex-1 space-y-xs">
+<h4 class="font-label-sm font-bold text-on-surface">2h Physics: Thermodynamics</h4>
+<div class="flex gap-sm">
+<span class="text-[12px] bg-primary-container/10 text-primary px-sm py-xs rounded">Theory</span>
+<span class="text-[12px] bg-tertiary-container/10 text-tertiary px-sm py-xs rounded">Practice Quiz</span>
+</div>
+</div>
+<div class="hidden sm:flex items-center gap-xs text-outline-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-[12px]">Completed</span>
+</div>
+</div>
+<!-- Tuesday -->
+<div class="glass-card p-lg rounded-xl flex items-center gap-lg border-l-4 border-primary-container/20 hover:translate-x-2 transition-transform duration-200">
+<div class="text-center w-12 shrink-0">
+<p class="font-label-sm text-outline uppercase">Tue</p>
+<p class="font-headline-md text-on-surface">15</p>
+</div>
+<div class="flex-1 space-y-xs">
+<h4 class="font-label-sm font-bold text-on-surface">1.5h Calculus: Integrals</h4>
+<div class="flex gap-sm">
+<span class="text-[12px] bg-primary-container/10 text-primary px-sm py-xs rounded">Advanced</span>
+<span class="text-[12px] bg-surface-container-highest text-on-surface-variant px-sm py-xs rounded">Revision</span>
+</div>
+</div>
+<button class="bg-surface-container px-md py-sm rounded-lg font-label-sm text-primary hover:bg-primary hover:text-on-primary transition-colors">Start Session</button>
+</div>
+<!-- Wednesday (Today) -->
+<div class="glass-card p-lg rounded-xl flex items-center gap-lg border-l-4 border-primary bg-primary/[0.03] ring-1 ring-primary/20 hover:translate-x-2 transition-transform duration-200 relative overflow-hidden">
+<div class="absolute top-0 right-0 px-md py-xs bg-primary text-on-primary font-label-sm rounded-bl-xl">Today</div>
+<div class="text-center w-12 shrink-0">
+<p class="font-label-sm text-primary font-bold uppercase">Wed</p>
+<p class="font-headline-md text-primary font-bold">16</p>
+</div>
+<div class="flex-1 space-y-xs">
+<h4 class="font-label-sm font-bold text-on-surface">Calculus Masterclass + Twin AI Sync</h4>
+<div class="flex gap-sm">
+<span class="text-[12px] bg-tertiary text-on-tertiary px-sm py-xs rounded">High Priority</span>
+<span class="text-[12px] bg-surface-container-highest text-on-surface-variant px-sm py-xs rounded">Spaced Repetition</span>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-md py-sm rounded-lg font-label-sm shadow-md hover:scale-105 transition-transform">Continue</button>
+</div>
+</div>
+</div>
+<!-- 5. AI Suggestions (Right Column Top) -->
+<div class="lg:col-span-4 space-y-lg">
+<div class="glass-card p-lg rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-tertiary/5 space-y-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary animate-bounce" data-icon="bolt">bolt</span>
+<h3 class="font-label-sm font-bold text-primary uppercase tracking-wider">AI Strategy Insight</h3>
+</div>
+<p class="font-body-md text-on-surface italic">"Based on your current retention pace in Calculus, I recommend an extra <span class="font-bold text-tertiary">30m deep-focus session</span> this Wednesday to solidify Integration techniques."</p>
+<div class="pt-sm border-t border-white/40">
+<button class="w-full py-sm bg-primary/10 text-primary font-label-sm rounded-xl hover:bg-primary hover:text-on-primary transition-all">Accept Recommendation</button>
+</div>
+</div>
+<!-- 4. Milestones Checklist -->
+<div class="glass-card p-lg rounded-2xl space-y-md">
+<h3 class="font-label-sm font-bold text-on-surface uppercase tracking-wider">Upcoming Milestones</h3>
+<ul class="space-y-md">
+<li class="flex items-start gap-md">
+<div class="w-5 h-5 border-2 border-primary rounded-md shrink-0 flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="check">check</span>
+</div>
+<div>
+<p class="font-label-sm font-bold text-on-surface">Unit 3 Quiz: Optics</p>
+<p class="text-[12px] text-on-surface-variant">Oct 18, 2024</p>
+</div>
+</li>
+<li class="flex items-start gap-md">
+<div class="w-5 h-5 border-2 border-outline-variant rounded-md shrink-0 mt-1"></div>
+<div>
+<p class="font-label-sm font-bold text-on-surface">Calculus Final Assessment</p>
+<p class="text-[12px] text-on-surface-variant">Oct 24, 2024</p>
+</div>
+</li>
+<li class="flex items-start gap-md">
+<div class="w-5 h-5 border-2 border-outline-variant rounded-md shrink-0 mt-1"></div>
+<div>
+<p class="font-label-sm font-bold text-on-surface">Peer Study Group Sync</p>
+<p class="text-[12px] text-on-surface-variant">Oct 26, 2024</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- 3. Revision Calendar (Bottom Full Width) -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="history">history</span>
+                            Spaced Repetition Calendar
+                        </h3>
+<p class="text-label-sm text-on-surface-variant">Visualizing retention cycles</p>
+</div>
+<div class="glass-card rounded-2xl p-xl">
+<div class="grid grid-cols-7 gap-sm mb-md">
+<div class="text-center font-label-sm text-outline-variant">S</div>
+<div class="text-center font-label-sm text-outline-variant">M</div>
+<div class="text-center font-label-sm text-outline-variant">T</div>
+<div class="text-center font-label-sm text-outline-variant">W</div>
+<div class="text-center font-label-sm text-outline-variant">T</div>
+<div class="text-center font-label-sm text-outline-variant">F</div>
+<div class="text-center font-label-sm text-outline-variant">S</div>
+</div>
+<div class="grid grid-cols-7 gap-sm">
+<!-- Render generic calendar days -->
+<div class="aspect-square flex items-center justify-center text-outline-variant/30 font-label-sm">29</div>
+<div class="aspect-square flex items-center justify-center text-outline-variant/30 font-label-sm">30</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">
+<span>1</span>
+</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-primary/20 border border-primary/40 relative">
+<span>2</span>
+<div class="w-1 h-1 bg-primary rounded-full absolute bottom-2"></div>
+</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">3</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-tertiary/10 border border-tertiary/20 relative">
+<span>4</span>
+<div class="w-1 h-1 bg-tertiary rounded-full absolute bottom-2"></div>
+</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">5</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">6</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">7</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">8</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-primary/20 border border-primary/40">
+<span>9</span>
+</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">10</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">11</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">12</div>
+<!-- Highlights for Week 3 -->
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">13</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-primary/60 text-on-primary ring-2 ring-primary/40 shadow-lg">
+<span>14</span>
+</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl bg-primary/40 text-on-primary">15</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-primary text-on-primary ring-4 ring-primary/20">
+<span>16</span>
+</div>
+<div class="aspect-square flex flex-col items-center justify-center font-label-sm rounded-xl bg-tertiary/40 text-on-tertiary">17</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">18</div>
+<div class="aspect-square flex items-center justify-center font-label-sm rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer">19</div>
+</div>
+<div class="mt-lg flex gap-lg text-[12px] justify-center">
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 bg-primary rounded-sm"></span>
+<span>Focused Revision</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 bg-tertiary rounded-sm"></span>
+<span>Spaced Recall</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 bg-surface-container rounded-sm"></span>
+<span>No Session Scheduled</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer - JSON Defined -->
+<footer class="w-full py-xl border-t border-outline-variant dark:border-outline/20 bg-surface mt-xl">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center px-lg gap-md">
+<p class="font-label-sm text-label-sm text-secondary">© 2024 StudyTwin AI. All rights reserved.</p>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors" href="#">Help Center</a>
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</main>
+</div>
+<!-- Floating Action Button for Mobile -->
+<div class="fixed bottom-lg right-lg md:hidden">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+</button>
+</div>
+<!-- Bottom Nav Bar for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-xl border-t border-white/20 flex justify-around items-center h-16 px-md z-[60]">
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px]">Dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-primary font-bold">
+<span class="material-symbols-outlined" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="text-[10px]">Strategy</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[10px]">Analytics</span>
+</button>
+<button class="flex flex-col items-center gap-unit text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions and UI state
+        document.addEventListener('DOMContentLoaded', () => {
+            // Placeholder for interactivity logic
+            console.log('Study Strategy Interface Initialized');
+
+            // Simulate progress bar animation
+            const progressBar = document.querySelector('.bg-gradient-to-r');
+            if(progressBar) {
+                setTimeout(() => {
+                    progressBar.style.width = '68%';
+                }, 500);
+            }
+        });
+    </script>
+</body></html>

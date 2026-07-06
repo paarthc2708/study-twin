@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StudyTwin AI | Prototype Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #faf8ff;
+    color: #131b2e;
+  }
+  header {
+    padding: 48px 24px 24px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 800;
+    color: #4648d4;
+  }
+  header p {
+    margin: 0;
+    color: #464554;
+  }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  a.card {
+    display: block;
+    background: #fff;
+    border: 1px solid #e0e3e5;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  a.card:hover {
+    box-shadow: 0 10px 30px rgba(70, 72, 212, 0.15);
+    transform: translateY(-2px);
+  }
+  .thumb {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+    background: #eaedff;
+  }
+  .card-body {
+    padding: 16px;
+  }
+  .card-body h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .card-body p {
+    margin: 0;
+    font-size: 13px;
+    color: #767586;
+  }
+  footer {
+    text-align: center;
+    padding: 32px;
+    color: #767586;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<header>
+<h1>StudyTwin AI</h1>
+<p>Local prototype index &mdash; exported from Google Stitch. Click a screen to open it.</p>
+</header>
+<main>
+<a class="card" href="studytwin_ai_your_personalized_learning_partner/code.html">
+<img alt="Landing page" class="thumb" src="studytwin_ai_your_personalized_learning_partner/screen.png"/>
+<div class="card-body"><h2>Landing Page</h2><p>Marketing home &amp; entry point</p></div>
+</a>
+<a class="card" href="sign_in_to_studytwin_ai/code.html">
+<img alt="Sign in" class="thumb" src="sign_in_to_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Sign In</h2><p>Login &amp; sign up</p></div>
+</a>
+<a class="card" href="dashboard_studytwin_ai/code.html">
+<img alt="Dashboard" class="thumb" src="dashboard_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Dashboard</h2><p>Student home base</p></div>
+</a>
+<a class="card" href="ai_mentor_studytwin_ai/code.html">
+<img alt="AI Mentor" class="thumb" src="ai_mentor_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>AI Mentor</h2><p>Chat with your study partner</p></div>
+</a>
+<a class="card" href="quiz_generator_studytwin_ai/code.html">
+<img alt="Quiz Generator" class="thumb" src="quiz_generator_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Quiz Generator</h2><p>Practice &amp; test yourself</p></div>
+</a>
+<a class="card" href="study_strategy_studytwin_ai/code.html">
+<img alt="Study Strategy" class="thumb" src="study_strategy_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Study Strategy</h2><p>Personalized study plans</p></div>
+</a>
+<a class="card" href="learning_analytics_studytwin_ai/code.html">
+<img alt="Learning Analytics" class="thumb" src="learning_analytics_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Learning Analytics</h2><p>Progress &amp; performance</p></div>
+</a>
+<a class="card" href="my_digital_twin_studytwin_ai/code.html">
+<img alt="My Digital Twin" class="thumb" src="my_digital_twin_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>My Digital Twin</h2><p>AI model of your learning style</p></div>
+</a>
+<a class="card" href="settings_studytwin_ai/code.html">
+<img alt="Settings" class="thumb" src="settings_studytwin_ai/screen.png"/>
+<div class="card-body"><h2>Settings</h2><p>Account &amp; preferences</p></div>
+</a>
+</main>
+<footer>Served locally via <code>npm start</code> &middot; not part of the Stitch-exported UI</footer>
+</body>
+</html>
