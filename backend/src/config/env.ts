@@ -14,6 +14,12 @@ interface Config {
     windowMs: number;
     maxRequests: number;
   };
+  supabase: {
+    url: string;
+    anonKey: string;
+    serviceRoleKey: string;
+    isConfigured: boolean;
+  };
 }
 
 function requireEnv(name: string): string {
@@ -22,6 +28,13 @@ function requireEnv(name: string): string {
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
+}
+
+// Unlike requireEnv, this never throws — Supabase-dependent routes are
+// optional at boot and fail with a clear 500 at request time instead (see
+// config/supabase.ts), so the server can still start before it's configured.
+function optionalEnv(name: string): string {
+  return process.env[name]?.trim() ?? '';
 }
 
 function parseIntEnv(name: string, fallback: number): number {
@@ -36,6 +49,9 @@ function parseIntEnv(name: string, fallback: number): number {
 
 const nodeEnv = (process.env.NODE_ENV ?? 'development') as NodeEnv;
 
+const supabaseUrl = optionalEnv('SUPABASE_URL');
+const supabaseServiceRoleKey = optionalEnv('SUPABASE_SERVICE_ROLE_KEY');
+
 export const config: Config = {
   nodeEnv,
   isProduction: nodeEnv === 'production',
@@ -47,5 +63,11 @@ export const config: Config = {
   rateLimit: {
     windowMs: parseIntEnv('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000),
     maxRequests: parseIntEnv('RATE_LIMIT_MAX_REQUESTS', 100),
+  },
+  supabase: {
+    url: supabaseUrl,
+    anonKey: optionalEnv('SUPABASE_ANON_KEY'),
+    serviceRoleKey: supabaseServiceRoleKey,
+    isConfigured: Boolean(supabaseUrl && supabaseServiceRoleKey),
   },
 };

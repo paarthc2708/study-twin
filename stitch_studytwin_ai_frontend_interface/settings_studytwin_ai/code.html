@@ -363,7 +363,7 @@
 <div class="glass-card rounded-xl p-lg border-error/10">
 <h3 class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-md">Account Actions</h3>
 <div class="space-y-sm">
-<button class="w-full py-sm px-md rounded-lg text-sm font-semibold text-error hover:bg-error-container/50 transition-colors flex items-center gap-md" onclick="window.location.href='../sign_in_to_studytwin_ai/code.html'">
+<button class="w-full py-sm px-md rounded-lg text-sm font-semibold text-error hover:bg-error-container/50 transition-colors flex items-center gap-md" onclick="(window.SUPABASE_IS_CONFIGURED ? window.authService.signOut() : Promise.resolve()).finally(() => window.location.href='../sign_in_to_studytwin_ai/code.html')">
 <span class="material-symbols-outlined text-lg" data-icon="logout">logout</span>
                                     Log out
                                 </button>
@@ -415,6 +415,10 @@
         });
     </script>
 <script src="/env.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/js/services/supabaseClient.js"></script>
+<script src="/js/services/authService.js"></script>
+<script src="/js/services/authGuard.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"></script>
 <script src="/js/services/apiClient.js"></script>
 <script src="/js/services/healthService.js"></script>

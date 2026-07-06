@@ -48,6 +48,8 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/env.js') {
     const envConfig = {
       API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:4000/api/v1',
+      SUPABASE_URL: process.env.SUPABASE_URL || '',
+      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
     };
     res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
     res.end(`window.__ENV__ = ${JSON.stringify(envConfig)};`);

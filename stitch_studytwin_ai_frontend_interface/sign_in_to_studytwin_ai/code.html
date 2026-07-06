@@ -176,7 +176,7 @@
 </div>
 <!-- SSO Options -->
 <div class="flex flex-col gap-md">
-<button class="btn-hover flex items-center justify-center gap-sm w-full py-md px-lg rounded-xl border border-white/40 bg-white/30 font-label-sm text-label-sm text-on-surface">
+<button class="btn-hover flex items-center justify-center gap-sm w-full py-md px-lg rounded-xl border border-white/40 bg-white/30 font-label-sm text-label-sm text-on-surface" id="google-signin-btn">
 <svg class="w-5 h-5" viewbox="0 0 24 24">
 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
@@ -185,7 +185,7 @@
 </svg>
                     Continue with Google
                 </button>
-<button class="btn-hover flex items-center justify-center gap-sm w-full py-md px-lg rounded-xl border border-white/40 bg-white/30 font-label-sm text-label-sm text-on-surface">
+<button class="btn-hover flex items-center justify-center gap-sm w-full py-md px-lg rounded-xl border border-white/40 bg-white/30 font-label-sm text-label-sm text-on-surface" id="apple-signin-btn">
 <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
 <path d="M17.05 20.28c-.98.95-2.05 1.61-3.14 1.61-1.04 0-1.78-.62-3.03-.62-1.28 0-2.18.61-3.09.61-1.12 0-2.26-.78-3.32-1.85C2.31 17.91 1 14.86 1 12.18c0-4.14 2.64-6.32 5.2-6.32 1.34 0 2.45.8 3.35.8.84 0 2.21-.86 3.73-.86 1.83 0 3.35.91 4.21 2.36-3.6 1.84-3 6.78.61 8.27-.66 1.76-1.57 3.25-2.05 3.85zM12.91 1c.04 2.12-1.68 4.09-3.71 4.09-.07-2.43 2.03-4.18 3.71-4.09z"></path>
 </svg>
@@ -295,14 +295,80 @@
             }
         }
 
-        // Prototype auth: any submit proceeds straight to the dashboard.
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        // Real Supabase auth. Falls back to the prototype's straight-through
+        // redirect if SUPABASE_URL / SUPABASE_ANON_KEY aren't set yet, so the
+        // click-through demo keeps working before a project is configured.
+        const DASHBOARD_URL = '../dashboard_studytwin_ai/code.html';
+
+        function setSubmitting(button, isSubmitting, label) {
+            button.disabled = isSubmitting;
+            button.textContent = isSubmitting ? 'Please wait…' : label;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            window.location.href = '../dashboard_studytwin_ai/code.html';
+            if (!window.SUPABASE_IS_CONFIGURED) {
+                window.location.href = DASHBOARD_URL;
+                return;
+            }
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            setSubmitting(submitBtn, true, 'Sign In');
+            try {
+                await window.authService.signIn({ email, password });
+                window.location.href = DASHBOARD_URL;
+            } catch (err) {
+                alert(err.message || 'Sign in failed.');
+            } finally {
+                setSubmitting(submitBtn, false, 'Sign In');
+            }
         });
-        document.getElementById('signup-form').addEventListener('submit', (e) => {
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            window.location.href = '../dashboard_studytwin_ai/code.html';
+            if (!window.SUPABASE_IS_CONFIGURED) {
+                window.location.href = DASHBOARD_URL;
+                return;
+            }
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const fullName = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            setSubmitting(submitBtn, true, 'Create Account');
+            try {
+                const data = await window.authService.signUp({ email, password, fullName });
+                if (data.session) {
+                    window.location.href = DASHBOARD_URL;
+                } else {
+                    alert('Check your email to confirm your account, then sign in.');
+                    toggleAuth('login');
+                }
+            } catch (err) {
+                alert(err.message || 'Sign up failed.');
+            } finally {
+                setSubmitting(submitBtn, false, 'Create Account');
+            }
+        });
+
+        document.getElementById('google-signin-btn').addEventListener('click', () => {
+            if (!window.SUPABASE_IS_CONFIGURED) {
+                alert('Supabase is not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in .env.');
+                return;
+            }
+            window.authService
+                .signInWithOAuth('google', window.location.origin + '/dashboard_studytwin_ai/code.html')
+                .catch((err) => alert(err.message || 'Google sign-in failed.'));
+        });
+
+        document.getElementById('apple-signin-btn').addEventListener('click', () => {
+            if (!window.SUPABASE_IS_CONFIGURED) {
+                alert('Supabase is not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in .env.');
+                return;
+            }
+            window.authService
+                .signInWithOAuth('apple', window.location.origin + '/dashboard_studytwin_ai/code.html')
+                .catch((err) => alert(err.message || 'Apple sign-in failed.'));
         });
 
         // Add a subtle parallax effect on the card based on mouse movement
@@ -326,6 +392,9 @@
         });
     </script>
 <script src="/env.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/js/services/supabaseClient.js"></script>
+<script src="/js/services/authService.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"></script>
 <script src="/js/services/apiClient.js"></script>
 <script src="/js/services/healthService.js"></script>
