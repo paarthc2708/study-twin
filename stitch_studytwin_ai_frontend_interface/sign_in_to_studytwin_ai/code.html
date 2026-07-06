@@ -209,7 +209,7 @@
 <div class="flex flex-col gap-xs">
 <div class="flex justify-between items-center px-unit">
 <label class="font-label-sm text-label-sm text-on-surface-variant" for="login-password">Password</label>
-<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Forgot password?</a>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#" id="forgot-password-link">Forgot password?</a>
 </div>
 <input class="w-full bg-surface-container-low/30 border border-outline-variant/30 rounded-lg px-md py-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md text-body-md placeholder:text-outline/50 outline-none" id="login-password" placeholder="••••••••" type="password"/>
 </div>
@@ -370,6 +370,41 @@
                 .signInWithOAuth('apple', window.location.origin + '/dashboard_studytwin_ai/code.html')
                 .catch((err) => alert(err.message || 'Apple sign-in failed.'));
         });
+
+        // Forgot Password, step 1: send the recovery email. Step 2 (setting the
+        // new password) is handled below by the PASSWORD_RECOVERY auth event,
+        // fired once the user clicks the link and lands back on this page.
+        document.getElementById('forgot-password-link').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!window.SUPABASE_IS_CONFIGURED) {
+                alert('Supabase is not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in .env.');
+                return;
+            }
+            const prefill = document.getElementById('login-email').value;
+            const email = window.prompt('Enter your account email to receive a password reset link:', prefill);
+            if (!email) return;
+            try {
+                await window.authService.resetPasswordForEmail(email, window.location.origin + '/sign_in_to_studytwin_ai/code.html');
+                alert('Check your email for a password reset link.');
+            } catch (err) {
+                alert(err.message || 'Could not send reset email.');
+            }
+        });
+
+        if (window.SUPABASE_IS_CONFIGURED && window.authService) {
+            window.authService.onAuthStateChange(async (event) => {
+                if (event !== 'PASSWORD_RECOVERY') return;
+                const newPassword = window.prompt('Enter a new password (min. 6 characters):');
+                if (!newPassword) return;
+                try {
+                    await window.authService.updatePassword(newPassword);
+                    alert('Password updated. Taking you to your dashboard.');
+                    window.location.href = DASHBOARD_URL;
+                } catch (err) {
+                    alert(err.message || 'Could not update password.');
+                }
+            });
+        }
 
         // Add a subtle parallax effect on the card based on mouse movement
         const card = document.getElementById('auth-card');

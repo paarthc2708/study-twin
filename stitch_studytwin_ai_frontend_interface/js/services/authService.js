@@ -46,5 +46,29 @@
     return client().auth.onAuthStateChange(callback);
   }
 
-  window.authService = { signUp, signIn, signInWithOAuth, signOut, getSession, onAuthStateChange };
+  // Step 1 of the Forgot Password flow: emails the user a recovery link that
+  // redirects back to redirectTo with a recovery session in the URL.
+  async function resetPasswordForEmail(email, redirectTo) {
+    const { error } = await client().auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
+    if (error) throw error;
+  }
+
+  // Step 2: called once the recovery session from the email link is active
+  // (see authGuard.js / the PASSWORD_RECOVERY auth event) to set a new password.
+  async function updatePassword(newPassword) {
+    const { data, error } = await client().auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    return data;
+  }
+
+  window.authService = {
+    signUp,
+    signIn,
+    signInWithOAuth,
+    signOut,
+    getSession,
+    onAuthStateChange,
+    resetPasswordForEmail,
+    updatePassword,
+  };
 })();
