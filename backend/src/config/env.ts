@@ -20,6 +20,10 @@ interface Config {
     serviceRoleKey: string;
     isConfigured: boolean;
   };
+  gemini: {
+    apiKey: string;
+    isConfigured: boolean;
+  };
 }
 
 function requireEnv(name: string): string {
@@ -51,6 +55,7 @@ const nodeEnv = (process.env.NODE_ENV ?? 'development') as NodeEnv;
 
 const supabaseUrl = optionalEnv('SUPABASE_URL');
 const supabaseServiceRoleKey = optionalEnv('SUPABASE_SERVICE_ROLE_KEY');
+const geminiApiKey = optionalEnv('GEMINI_API_KEY');
 
 export const config: Config = {
   nodeEnv,
@@ -69,5 +74,9 @@ export const config: Config = {
     anonKey: optionalEnv('SUPABASE_ANON_KEY'),
     serviceRoleKey: supabaseServiceRoleKey,
     isConfigured: Boolean(supabaseUrl && supabaseServiceRoleKey),
+  },
+  gemini: {
+    apiKey: geminiApiKey,
+    isConfigured: Boolean(geminiApiKey),
   },
 };

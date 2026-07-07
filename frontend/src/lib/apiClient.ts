@@ -3,7 +3,9 @@ import { supabase } from './supabaseClient';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1',
-  timeout: 10000,
+  // AI generation calls (quiz questions, feedback, insights) can take longer
+  // than a typical REST round-trip.
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },

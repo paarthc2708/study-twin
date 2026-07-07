@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '../components/ui/GlassCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { Toggle } from '../components/ui/Toggle';
+import { Modal } from '../components/ui/Modal';
+import { useToast } from '../components/ui/ToastProvider';
 import { useAuth } from '../context/AuthContext';
-import { getIntegrations, getProfileSettings } from '../services/settingsService';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+import { deleteAccount, getIntegrations, getProfile, updateProfile, uploadAvatar } from '../services/settingsService';
 
 function strictnessLabel(value: number): string {
   if (value < 33) return 'Encouraging';
@@ -12,20 +15,75 @@ function strictnessLabel(value: number): string {
   return 'Strict';
 }
 
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const [profile] = useState(() => getProfileSettings());
+  const { user, signOut } = useAuth();
+  const { showToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadProfile = useCallback(() => getProfile(user!.id), [user]);
+  const { data: profile, loading, error, refetch } = useSupabaseQuery(loadProfile, [user?.id]);
   const [integrations] = useState(() => getIntegrations());
 
-  const [fullName, setFullName] = useState(profile.fullName);
-  const [academicLevel, setAcademicLevel] = useState(profile.academicLevel);
-  const [bio, setBio] = useState(profile.bio);
-  const [mentorStrictness, setMentorStrictness] = useState(profile.mentorStrictness);
-  const [dailyReminders, setDailyReminders] = useState(profile.dailyReminders);
-  const [pushAlerts, setPushAlerts] = useState(profile.pushAlerts);
-  const [language, setLanguage] = useState(profile.language);
+  const [fullName, setFullName] = useState('');
+  const [academicLevel, setAcademicLevel] = useState('Undergraduate');
+  const [bio, setBio] = useState('');
+  const [mentorStrictness, setMentorStrictness] = useState(50);
+  const [dailyReminders, setDailyReminders] = useState(true);
+  const [pushAlerts, setPushAlerts] = useState(true);
+  const [language, setLanguage] = useState('English');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    setFullName(profile.fullName);
+    setAcademicLevel(profile.academicLevel);
+    setBio(profile.bio);
+    setMentorStrictness(profile.mentorStrictness);
+    setDailyReminders(profile.dailyReminders);
+    setPushAlerts(profile.pushAlerts);
+    setLanguage(profile.language);
+    setAvatarUrl(profile.avatarUrl);
+  }, [profile]);
+
+  async function handleSave() {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      await updateProfile(user.id, { fullName, academicLevel, bio, mentorStrictness, dailyReminders, pushAlerts, language });
+      showToast('Settings saved.', 'success');
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not save settings.'));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    setIsUploadingAvatar(true);
+    try {
+      const url = await uploadAvatar(user.id, file);
+      setAvatarUrl(url);
+      showToast('Profile photo updated.', 'success');
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not upload photo — storage may not be configured yet.'));
+    } finally {
+      setIsUploadingAvatar(false);
+      event.target.value = '';
+    }
+  }
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -34,6 +92,33 @@ export function SettingsPage() {
     } finally {
       navigate('/sign-in');
     }
+  }
+
+  async function handleDeleteAccount() {
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+      await signOut();
+      navigate('/');
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not delete account.'));
+      setIsDeleting(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="text-on-surface-variant">Loading settings…</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-2xl space-y-md">
+        <p className="text-error">{error}</p>
+        <button onClick={refetch} className="text-primary font-bold hover:underline">
+          Try again
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -52,11 +137,20 @@ export function SettingsPage() {
             <div className="flex flex-col md:flex-row gap-xl items-start">
               <div className="relative group">
                 <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white/50 shadow-lg bg-primary-container flex items-center justify-center">
-                  <MaterialIcon name="person" className="text-on-primary-container" style={{ fontSize: '48px' }} />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <MaterialIcon name="person" className="text-on-primary-container" style={{ fontSize: '48px' }} />
+                  )}
                 </div>
-                <button className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-105 transition-transform">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
+                >
                   <MaterialIcon name="photo_camera" className="text-sm" />
                 </button>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
               </div>
               <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-md">
                 <div className="space-y-xs">
@@ -75,10 +169,10 @@ export function SettingsPage() {
                     value={academicLevel}
                     onChange={(event) => setAcademicLevel(event.target.value)}
                   >
-                    <option>Undergraduate</option>
-                    <option>Graduate</option>
-                    <option>PhD Candidate</option>
-                    <option>Lifelong Learner</option>
+                    <option value="undergraduate">Undergraduate</option>
+                    <option value="graduate">Graduate</option>
+                    <option value="phd_candidate">PhD Candidate</option>
+                    <option value="lifelong_learner">Lifelong Learner</option>
                   </select>
                 </div>
                 <div className="md:col-span-2 space-y-xs">
@@ -130,6 +224,16 @@ export function SettingsPage() {
               </div>
             </div>
           </GlassCard>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-xl py-md bg-primary text-on-primary rounded-xl font-label-sm font-bold shadow-md hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {isSaving ? 'Saving…' : 'Save Changes'}
+            </button>
+          </div>
         </section>
 
         <aside className="md:col-span-4 space-y-lg">
@@ -174,28 +278,16 @@ export function SettingsPage() {
             <h3 className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-md">Integrations</h3>
             <div className="space-y-md">
               {integrations.map((integration) => (
-                <div
-                  key={integration.id}
-                  className="flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors group cursor-pointer"
-                >
+                <div key={integration.id} className="flex items-center justify-between p-sm rounded-lg opacity-60">
                   <div className="flex items-center gap-md">
                     <div className="w-8 h-8 rounded bg-white flex items-center justify-center shadow-sm border border-outline-variant">
-                      <MaterialIcon
-                        name={integration.icon}
-                        className={`text-lg ${integration.id === 'google' ? 'text-red-500' : 'text-on-surface'}`}
-                      />
+                      <MaterialIcon name={integration.icon} className="text-lg text-on-surface" />
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold">{integration.name}</p>
-                      <p className={`text-[10px] ${integration.status === 'connected' ? 'text-primary' : 'text-outline'}`}>
-                        {integration.status === 'connected' ? 'Connected' : 'Not Linked'}
-                      </p>
-                    </div>
+                    <p className="text-sm font-semibold">{integration.name}</p>
                   </div>
-                  <MaterialIcon
-                    name={integration.status === 'connected' ? 'check_circle' : 'add'}
-                    className="text-outline group-hover:text-primary transition-colors"
-                  />
+                  <span className="text-xs font-label-sm px-sm py-unit bg-secondary-container text-secondary rounded">
+                    Coming Soon
+                  </span>
                 </div>
               ))}
             </div>
@@ -213,8 +305,8 @@ export function SettingsPage() {
                 {isLoggingOut ? 'Logging out…' : 'Log out'}
               </button>
               <button
-                disabled
-                className="w-full py-sm px-md rounded-lg text-sm font-semibold text-outline-variant flex items-center gap-md opacity-50 cursor-not-allowed"
+                onClick={() => setDeleteModalOpen(true)}
+                className="w-full py-sm px-md rounded-lg text-sm font-semibold text-outline-variant hover:text-error transition-colors flex items-center gap-md"
               >
                 <MaterialIcon name="delete_forever" className="text-lg" />
                 Delete Account
@@ -223,6 +315,30 @@ export function SettingsPage() {
           </GlassCard>
         </aside>
       </div>
+
+      <Modal open={deleteModalOpen} title="Delete your account?" onClose={() => setDeleteModalOpen(false)}>
+        <div className="space-y-md">
+          <p className="text-on-surface-variant">
+            This permanently deletes your account and every course, quiz, chat session, and study record associated
+            with it. This cannot be undone.
+          </p>
+          <div className="flex gap-sm">
+            <button
+              onClick={() => setDeleteModalOpen(false)}
+              className="flex-1 py-sm rounded-lg border border-outline-variant font-bold hover:bg-surface-container transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="flex-1 py-sm rounded-lg bg-error text-on-error font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {isDeleting ? 'Deleting…' : 'Delete Forever'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

@@ -1,6 +1,9 @@
-import { useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
-import { getChatSessions, getInitialMessages, generateAssistantReply } from '../services/mentorService';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/ToastProvider';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+import { createSession, getChatSessions, getMessages, sendMessage as sendMessageToBackend } from '../services/mentorService';
 import type { ChatMessage } from '../types/domain';
 
 const QUICK_ACTIONS = [
@@ -17,49 +20,93 @@ const SUGGESTIONS = [
   { title: 'Quick Ref', prompt: 'Create 10 flashcards for Organic Chemistry' },
 ];
 
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function AiMentorPage() {
-  const [sessions] = useState(() => getChatSessions());
-  const [activeSessionId, setActiveSessionId] = useState(sessions[0]?.id);
-  const [messages, setMessages] = useState<ChatMessage[]>(() => getInitialMessages());
+  const { user } = useAuth();
+  const { showToast } = useToast();
+
+  const loadSessions = useCallback(() => getChatSessions(user!.id), [user]);
+  const { data: sessions, loading: sessionsLoading, error: sessionsError, refetch: refetchSessions } = useSupabaseQuery(
+    loadSessions,
+    [user?.id],
+  );
+
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [draft, setDraft] = useState('');
   const [twinEnabled, setTwinEnabled] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
 
-  function sendMessage() {
+  // Auto-create a first session if the user has none yet, and default to the
+  // most recently active one otherwise.
+  useEffect(() => {
+    if (!sessions || !user) return;
+    if (sessions.length === 0) {
+      if (isCreatingSession) return;
+      setIsCreatingSession(true);
+      createSession(user.id)
+        .then((session) => {
+          setActiveSessionId(session.id);
+          refetchSessions();
+        })
+        .catch((err) => showToast(errorMessage(err, 'Could not start a session.')))
+        .finally(() => setIsCreatingSession(false));
+    } else if (!activeSessionId) {
+      setActiveSessionId(sessions[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessions, user]);
+
+  useEffect(() => {
+    if (!activeSessionId) return;
+    setMessagesLoading(true);
+    getMessages(activeSessionId)
+      .then(setMessages)
+      .catch((err) => showToast(errorMessage(err, 'Could not load this conversation.')))
+      .finally(() => setMessagesLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSessionId]);
+
+  async function handleSend() {
     const text = draft.trim();
-    if (!text) return;
+    if (!text || !activeSessionId) return;
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: text,
-      timestamp: 'Just now',
-    };
-    setMessages((prev) => [...prev, userMessage]);
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
     setDraft('');
     setIsThinking(true);
-
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: generateAssistantReply(text),
-          timestamp: 'Just now',
-        },
-      ]);
+    try {
+      const { userMessage, assistantMessage } = await sendMessageToBackend(activeSessionId, text, history, twinEnabled);
+      setMessages((prev) => [...prev, userMessage, ...(assistantMessage ? [assistantMessage] : [])]);
+      refetchSessions();
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not send message.'));
+    } finally {
       setIsThinking(false);
-    }, 600);
+    }
   }
 
   function handleKeyPress(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter') sendMessage();
+    if (event.key === 'Enter') handleSend();
   }
 
-  function handleNewSession() {
-    setMessages(getInitialMessages());
-    setDraft('');
+  async function handleNewSession() {
+    if (!user) return;
+    setIsCreatingSession(true);
+    try {
+      const session = await createSession(user.id);
+      setActiveSessionId(session.id);
+      setDraft('');
+      refetchSessions();
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not start a new session.'));
+    } finally {
+      setIsCreatingSession(false);
+    }
   }
 
   return (
@@ -71,7 +118,8 @@ export function AiMentorPage() {
         <div className="p-lg">
           <button
             onClick={handleNewSession}
-            className="w-full flex items-center justify-center gap-sm py-md px-lg bg-primary-container text-on-primary-container rounded-xl font-label-sm text-label-sm hover:opacity-90 transition-all shadow-sm"
+            disabled={isCreatingSession}
+            className="w-full flex items-center justify-center gap-sm py-md px-lg bg-primary-container text-on-primary-container rounded-xl font-label-sm text-label-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
           >
             <MaterialIcon name="add" />
             New Session
@@ -79,7 +127,9 @@ export function AiMentorPage() {
         </div>
         <div className="flex-1 overflow-y-auto px-md space-y-md pb-lg">
           <p className="px-sm font-label-sm text-label-sm text-outline uppercase tracking-wider text-[10px]">Recent Learning</p>
-          {sessions.map((session) => (
+          {sessionsLoading && <p className="px-sm text-label-sm text-on-surface-variant">Loading…</p>}
+          {sessionsError && <p className="px-sm text-label-sm text-error">{sessionsError}</p>}
+          {sessions?.map((session) => (
             <div
               key={session.id}
               onClick={() => setActiveSessionId(session.id)}
@@ -95,16 +145,6 @@ export function AiMentorPage() {
             </div>
           ))}
         </div>
-        <div className="p-lg bg-surface-container-low">
-          <div className="flex items-center justify-between text-outline">
-            <span className="font-label-sm text-label-sm">Usage</span>
-            <span className="text-[11px]">85%</span>
-          </div>
-          <div className="w-full h-1 bg-outline-variant/30 rounded-full mt-sm overflow-hidden">
-            <div className="h-full bg-primary" style={{ width: '85%' }} />
-          </div>
-          <p className="text-[10px] text-center mt-md text-on-surface-variant">Upgrade for unlimited AI insights</p>
-        </div>
       </section>
 
       <section className="flex-1 flex flex-col h-full relative min-w-0">
@@ -115,18 +155,12 @@ export function AiMentorPage() {
             </div>
             <h2 className="font-headline-md text-[18px] font-bold">AI Study Mentor</h2>
           </div>
-          <div className="flex items-center gap-md">
-            <button className="p-sm rounded-lg hover:bg-surface-container transition-colors">
-              <MaterialIcon name="share" />
-            </button>
-            <button className="p-sm rounded-lg hover:bg-surface-container transition-colors">
-              <MaterialIcon name="more_vert" />
-            </button>
-          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-xl py-xl space-y-xl pb-32">
-          {messages.length <= 1 && (
+          {messagesLoading && <p className="text-center text-on-surface-variant">Loading conversation…</p>}
+
+          {!messagesLoading && messages.length === 0 && (
             <div className="max-w-2xl mx-auto text-center py-2xl">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-lg">
                 <MaterialIcon name="auto_awesome" className="text-[32px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }} />
@@ -198,9 +232,6 @@ export function AiMentorPage() {
                 ))}
               </div>
               <div className="glass-card rounded-2xl p-sm flex items-center gap-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                <button className="p-md text-outline hover:text-primary transition-colors">
-                  <MaterialIcon name="attach_file" />
-                </button>
                 <input
                   className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline/60 px-sm"
                   placeholder="Ask your StudyTwin AI anything..."
@@ -208,6 +239,7 @@ export function AiMentorPage() {
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   onKeyPress={handleKeyPress}
+                  disabled={isThinking || !activeSessionId}
                 />
                 <div className="flex items-center gap-sm pr-sm">
                   <button
@@ -223,14 +255,17 @@ export function AiMentorPage() {
                     </span>
                   </button>
                   <button
-                    onClick={sendMessage}
-                    className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary-container transition-all shadow-md"
+                    onClick={handleSend}
+                    disabled={isThinking || !activeSessionId}
+                    className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary-container transition-all shadow-md disabled:opacity-50"
                   >
                     <MaterialIcon name="arrow_upward" />
                   </button>
                 </div>
               </div>
-              <p className="text-[11px] text-center text-outline/60">StudyTwin AI can make mistakes. Verify important information.</p>
+              <p className="text-[11px] text-center text-outline/60">
+                {twinEnabled ? 'StudyTwin AI can make mistakes. Verify important information.' : 'Twin is off — messages are saved but no reply is generated.'}
+              </p>
             </div>
           </div>
         </div>

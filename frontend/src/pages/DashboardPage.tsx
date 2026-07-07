@@ -1,8 +1,23 @@
-import { useState } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '../components/ui/GlassCard';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
-import { getDashboardData } from '../services/dashboardService';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/ToastProvider';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+import {
+  addTask,
+  dismissRecommendation,
+  getActivity,
+  getCalendarMonth,
+  getDeadlines,
+  getGreeting,
+  getRecommendations,
+  getStats,
+  getTasks,
+  toggleGoal,
+} from '../services/dashboardService';
 
 const ICON_COLOR_CLASS: Record<string, string> = {
   focus: 'text-primary',
@@ -10,35 +25,112 @@ const ICON_COLOR_CLASS: Record<string, string> = {
   mastery: 'text-secondary',
 };
 
-const CALENDAR_DAYS: { day: string; variant: 'muted' | 'default' | 'today' | 'deadline' }[] = [
-  { day: '12', variant: 'muted' },
-  { day: '13', variant: 'muted' },
-  { day: '14', variant: 'today' },
-  { day: '15', variant: 'default' },
-  { day: '16', variant: 'default' },
-  { day: '17', variant: 'deadline' },
-  { day: '18', variant: 'default' },
+const MONTH_LABELS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-export function DashboardPage() {
-  const [data] = useState(() => getDashboardData());
-  const [tasks, setTasks] = useState(data.tasks);
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
 
-  function toggleTask(id: string) {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, status: task.status === 'done' ? 'pending' : 'done' } : task)),
+export function DashboardPage() {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+  const now = new Date();
+  const [calendarYear, setCalendarYear] = useState(now.getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(now.getMonth());
+  const [newTaskLabel, setNewTaskLabel] = useState('');
+
+  const loadAll = useCallback(async () => {
+    const userId = user!.id;
+    const [greeting, stats, tasks, deadlines, activity, recommendations] = await Promise.all([
+      getGreeting(userId),
+      getStats(userId),
+      getTasks(userId),
+      getDeadlines(userId),
+      getActivity(userId),
+      getRecommendations(userId),
+    ]);
+    return { greeting, stats, tasks, deadlines, activity, recommendations };
+  }, [user]);
+  const { data, loading, error, refetch } = useSupabaseQuery(loadAll, [user?.id]);
+
+  const loadCalendar = useCallback(
+    () => getCalendarMonth(user!.id, calendarYear, calendarMonth),
+    [user, calendarYear, calendarMonth],
+  );
+  const { data: calendarCells, refetch: refetchCalendar } = useSupabaseQuery(loadCalendar, [user?.id, calendarYear, calendarMonth]);
+
+  function changeMonth(delta: number) {
+    let month = calendarMonth + delta;
+    let year = calendarYear;
+    if (month < 0) {
+      month = 11;
+      year -= 1;
+    } else if (month > 11) {
+      month = 0;
+      year += 1;
+    }
+    setCalendarMonth(month);
+    setCalendarYear(year);
+  }
+
+  async function handleToggleTask(id: string, done: boolean) {
+    try {
+      await toggleGoal(id, !done);
+      refetch();
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not update task.'));
+    }
+  }
+
+  async function handleAddTask(event: FormEvent) {
+    event.preventDefault();
+    if (!newTaskLabel.trim() || !user) return;
+    try {
+      await addTask(user.id, newTaskLabel.trim());
+      setNewTaskLabel('');
+      refetch();
+      refetchCalendar();
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not add task.'));
+    }
+  }
+
+  async function handleDismissRecommendation(id: string) {
+    try {
+      await dismissRecommendation(id);
+      refetch();
+    } catch (err) {
+      showToast(errorMessage(err, 'Could not update recommendation.'));
+    }
+  }
+
+  if (loading) return <div className="text-on-surface-variant">Loading your dashboard…</div>;
+  if (error || !data) {
+    return (
+      <div className="text-center py-2xl space-y-md">
+        <p className="text-error">{error}</p>
+        <button onClick={refetch} className="text-primary font-bold hover:underline">
+          Try again
+        </button>
+      </div>
     );
   }
+
+  const { greeting, stats, tasks, deadlines, activity, recommendations } = data;
 
   return (
     <>
       <section className="flex flex-col md:flex-row justify-between items-end gap-md">
         <div>
           <h2 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
-            Good morning, {data.greetingName}.
+            Good morning, {greeting.name}.
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant mt-xs">
-            You're on a <span className="font-bold text-primary">{data.streakDays}-day streak!</span> 🔥
+            You're on a <span className="font-bold text-primary">{greeting.streakDays}-day streak!</span> 🔥
           </p>
         </div>
         <div className="flex items-center gap-sm glass-card px-md py-sm rounded-full">
@@ -48,7 +140,7 @@ export function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-        {data.stats.map((stat) => (
+        {stats.map((stat) => (
           <GlassCard key={stat.id} className="p-lg flex flex-col">
             <div className="flex justify-between items-start mb-md">
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
@@ -70,9 +162,12 @@ export function DashboardPage() {
           <GlassCard className="p-lg">
             <div className="flex justify-between items-center mb-lg">
               <h3 className="font-headline-md text-headline-md text-on-surface">Today's Tasks</h3>
-              <button className="text-primary font-label-sm text-label-sm hover:underline">Manage Tasks</button>
+              <button onClick={() => navigate('/strategy')} className="text-primary font-label-sm text-label-sm hover:underline">
+                Manage Tasks
+              </button>
             </div>
             <div className="space-y-md">
+              {tasks.length === 0 && <p className="text-on-surface-variant text-label-sm">No tasks yet — add one below.</p>}
               {tasks.map((task) => (
                 <div
                   key={task.id}
@@ -80,7 +175,7 @@ export function DashboardPage() {
                 >
                   <button
                     type="button"
-                    onClick={() => toggleTask(task.id)}
+                    onClick={() => handleToggleTask(task.id, task.status === 'done')}
                     className="w-6 h-6 border-2 border-primary-fixed-dim rounded-md flex items-center justify-center cursor-pointer group-hover:border-primary shrink-0"
                   >
                     {task.status === 'done' && (
@@ -104,44 +199,63 @@ export function DashboardPage() {
                 </div>
               ))}
             </div>
+            <form onSubmit={handleAddTask} className="flex gap-sm mt-md">
+              <input
+                value={newTaskLabel}
+                onChange={(event) => setNewTaskLabel(event.target.value)}
+                placeholder="Add a task…"
+                className="flex-1 px-md py-sm bg-surface-container-low border-none rounded-lg outline-none focus:ring-2 focus:ring-primary/20 text-label-sm"
+              />
+              <button type="submit" className="px-lg py-sm bg-primary text-on-primary rounded-lg font-label-sm font-bold">
+                Add
+              </button>
+            </form>
           </GlassCard>
 
           <GlassCard className="p-lg">
             <h3 className="font-headline-md text-headline-md text-on-surface mb-lg">Upcoming Deadlines</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
-              {data.deadlines.map((deadline) => (
-                <div
-                  key={deadline.id}
-                  className={`p-md rounded-xl border ${
-                    deadline.urgent ? 'bg-error/5 border-error/10' : 'bg-secondary-container/30 border-outline-variant/20'
-                  }`}
-                >
-                  <div className={`flex items-center gap-sm mb-sm ${deadline.urgent ? 'text-error' : 'text-on-surface-variant'}`}>
-                    <MaterialIcon name={deadline.urgent ? 'event_busy' : 'schedule'} className="text-md" />
-                    <span className={`font-label-sm text-label-sm ${deadline.urgent ? 'font-bold' : ''}`}>{deadline.dueLabel}</span>
+            {deadlines.length === 0 ? (
+              <p className="text-on-surface-variant text-label-sm">No deadlines coming up.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                {deadlines.map((deadline) => (
+                  <div
+                    key={deadline.id}
+                    className={`p-md rounded-xl border ${
+                      deadline.urgent ? 'bg-error/5 border-error/10' : 'bg-secondary-container/30 border-outline-variant/20'
+                    }`}
+                  >
+                    <div className={`flex items-center gap-sm mb-sm ${deadline.urgent ? 'text-error' : 'text-on-surface-variant'}`}>
+                      <MaterialIcon name={deadline.urgent ? 'event_busy' : 'schedule'} className="text-md" />
+                      <span className={`font-label-sm text-label-sm ${deadline.urgent ? 'font-bold' : ''}`}>{deadline.dueLabel}</span>
+                    </div>
+                    <p className="font-bold text-on-surface">{deadline.title}</p>
+                    <p className="text-label-sm text-on-surface-variant">{deadline.subtitle}</p>
                   </div>
-                  <p className="font-bold text-on-surface">{deadline.title}</p>
-                  <p className="text-label-sm text-on-surface-variant">{deadline.subtitle}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </GlassCard>
 
           <GlassCard className="p-lg">
             <h3 className="font-headline-md text-headline-md text-on-surface mb-lg">Recent Activity</h3>
-            <div className="space-y-lg">
-              {data.activity.map((item) => (
-                <div key={item.id} className="flex gap-md">
-                  <div className="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center shrink-0">
-                    <MaterialIcon name={item.icon} className="text-tertiary" />
+            {activity.length === 0 ? (
+              <p className="text-on-surface-variant text-label-sm">Complete a quiz to see your activity here.</p>
+            ) : (
+              <div className="space-y-lg">
+                {activity.map((item) => (
+                  <div key={item.id} className="flex gap-md">
+                    <div className="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center shrink-0">
+                      <MaterialIcon name={item.icon} className="text-tertiary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold">{item.title}</p>
+                      <p className="text-label-sm text-on-surface-variant">{item.meta}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-bold">{item.title}</p>
-                    <p className="text-label-sm text-on-surface-variant">{item.meta}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </GlassCard>
         </div>
 
@@ -154,12 +268,15 @@ export function DashboardPage() {
                 <h3 className="font-headline-md text-headline-md text-on-surface">AI Recommendations</h3>
               </div>
               <div className="space-y-md">
-                {data.recommendations.map((rec) => (
-                  <div key={rec.id} className="p-md bg-white/60 border border-white/80 rounded-xl hover:shadow-md transition-shadow cursor-pointer">
+                {recommendations.map((rec) => (
+                  <div key={rec.id} className="p-md bg-white/60 border border-white/80 rounded-xl hover:shadow-md transition-shadow">
                     <p className="font-bold text-primary mb-xs">{rec.title}</p>
                     <p className="text-label-sm text-on-surface-variant">{rec.body}</p>
-                    <button className="mt-md w-full py-sm bg-primary text-on-primary rounded-lg text-label-sm font-bold">
-                      {rec.ctaLabel}
+                    <button
+                      onClick={() => handleDismissRecommendation(rec.id)}
+                      className="mt-md w-full py-sm bg-primary text-on-primary rounded-lg text-label-sm font-bold"
+                    >
+                      Mark as Seen
                     </button>
                   </div>
                 ))}
@@ -173,33 +290,39 @@ export function DashboardPage() {
 
           <GlassCard className="p-lg">
             <div className="flex justify-between items-center mb-md">
-              <p className="font-bold">October 2024</p>
+              <p className="font-bold">
+                {MONTH_LABELS[calendarMonth]} {calendarYear}
+              </p>
               <div className="flex gap-sm">
-                <MaterialIcon name="chevron_left" className="cursor-pointer hover:text-primary" />
-                <MaterialIcon name="chevron_right" className="cursor-pointer hover:text-primary" />
+                <button onClick={() => changeMonth(-1)}>
+                  <MaterialIcon name="chevron_left" className="cursor-pointer hover:text-primary" />
+                </button>
+                <button onClick={() => changeMonth(1)}>
+                  <MaterialIcon name="chevron_right" className="cursor-pointer hover:text-primary" />
+                </button>
               </div>
             </div>
             <div className="grid grid-cols-7 gap-xs text-center">
-              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((label, index) => (
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, index) => (
                 <span key={index} className="text-label-sm text-outline-variant">
                   {label}
                 </span>
               ))}
-              {CALENDAR_DAYS.map(({ day, variant }) => (
+              {calendarCells?.map((cell, index) => (
                 <span
-                  key={day}
+                  key={index}
                   className={`py-xs text-label-sm rounded-full relative ${
-                    variant === 'today'
+                    cell.variant === 'today'
                       ? 'bg-primary text-on-primary font-bold'
-                      : variant === 'deadline'
+                      : cell.variant === 'deadline'
                         ? 'bg-error/10 text-error font-bold'
-                        : variant === 'muted'
+                        : cell.variant === 'muted'
                           ? 'text-outline-variant'
                           : ''
                   }`}
                 >
-                  {day}
-                  {variant === 'deadline' && (
+                  {cell.day}
+                  {cell.variant === 'deadline' && (
                     <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-error rounded-full" />
                   )}
                 </span>

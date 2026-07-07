@@ -37,34 +37,6 @@ export interface DashboardStat {
   caption: string;
 }
 
-export interface DashboardData {
-  greetingName: string;
-  streakDays: number;
-  stats: DashboardStat[];
-  tasks: Task[];
-  deadlines: Deadline[];
-  activity: ActivityItem[];
-  recommendations: Recommendation[];
-}
-
-export interface Question {
-  id: string;
-  prompt: string;
-  options: string[];
-  correctIndex: number;
-}
-
-export interface QuizTopicOption {
-  id: string;
-  label: string;
-}
-
-export interface QuizResult {
-  score: number;
-  total: number;
-  weakTopics: string[];
-}
-
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -146,17 +118,19 @@ export interface ConfidenceCalibration {
 
 export interface ProfileSettings {
   fullName: string;
+  avatarUrl: string | null;
   academicLevel: string;
   bio: string;
+  plan: string;
   mentorStrictness: number;
   dailyReminders: boolean;
   pushAlerts: boolean;
   language: string;
+  currentStreakDays: number;
 }
 
 export interface Integration {
   id: string;
   name: string;
   icon: string;
-  status: 'connected' | 'not-linked';
 }

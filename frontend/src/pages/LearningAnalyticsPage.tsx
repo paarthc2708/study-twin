@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { RingProgress } from '../components/charts/RingProgress';
 import { LineChart } from '../components/charts/LineChart';
 import { BarChart } from '../components/charts/BarChart';
 import { Heatmap } from '../components/charts/Heatmap';
+import { useAuth } from '../context/AuthContext';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import {
   getAiInsights,
   getHeatmapCells,
@@ -18,14 +20,37 @@ import {
 type Range = 'week' | 'month';
 
 export function LearningAnalyticsPage() {
+  const { user } = useAuth();
   const [range, setRange] = useState<Range>('week');
-  const [masteryPercent] = useState(() => getMasteryPercent());
-  const [studyHours] = useState(() => getStudyHours());
-  const [quizScores] = useState(() => getQuizScores());
-  const [topicMastery] = useState(() => getTopicMastery());
-  const [heatmapCells] = useState(() => getHeatmapCells());
-  const [monthLabels] = useState(() => getHeatmapMonthLabels());
-  const [insights] = useState(() => getAiInsights());
+
+  const loadAll = useCallback(async () => {
+    const userId = user!.id;
+    const [mastery, studyHours, quizScores, topicMastery, heatmapCells, insights] = await Promise.all([
+      getMasteryPercent(userId),
+      getStudyHours(userId, range),
+      getQuizScores(userId),
+      getTopicMastery(userId),
+      getHeatmapCells(userId),
+      getAiInsights(userId),
+    ]);
+    return { mastery, studyHours, quizScores, topicMastery, heatmapCells, monthLabels: getHeatmapMonthLabels(), insights };
+  }, [user, range]);
+
+  const { data, loading, error, refetch } = useSupabaseQuery(loadAll, [user?.id, range]);
+
+  if (loading) return <div className="text-on-surface-variant">Loading your analytics…</div>;
+  if (error || !data) {
+    return (
+      <div className="text-center py-2xl space-y-md">
+        <p className="text-error">{error}</p>
+        <button onClick={refetch} className="text-primary font-bold hover:underline">
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const { mastery, studyHours, quizScores, topicMastery, heatmapCells, monthLabels, insights } = data;
 
   return (
     <>
@@ -34,20 +59,20 @@ export function LearningAnalyticsPage() {
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-primary/10 blur-[100px]" />
           <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-tertiary/10 blur-[100px]" />
           <h3 className="font-label-sm text-on-surface-variant mb-md uppercase tracking-wider">Curriculum Mastery</h3>
-          <RingProgress percent={masteryPercent} size={192} strokeWidth={12} trackClassName="text-surface-container-highest">
-            <span className="font-display-lg text-display-lg text-primary">{masteryPercent}%</span>
+          <RingProgress percent={mastery.percent} size={192} strokeWidth={12} trackClassName="text-surface-container-highest">
+            <span className="font-display-lg text-display-lg text-primary">{mastery.percent}%</span>
             <span className="font-label-sm text-on-surface-variant">Complete</span>
           </RingProgress>
-          <p className="mt-lg font-body-md text-on-surface-variant">
-            You've mastered <span className="font-bold text-primary">42 of 56</span> core concepts this semester.
-          </p>
+          <p className="mt-lg font-body-md text-on-surface-variant">{mastery.caption}</p>
         </GlassCard>
 
         <GlassCard className="md:col-span-8 p-lg">
           <div className="flex justify-between items-center mb-xl">
             <div>
-              <h3 className="font-headline-md text-headline-md text-on-surface">Study Hours per Week</h3>
-              <p className="font-label-sm text-on-surface-variant">Tracking your focus time across the last 7 days</p>
+              <h3 className="font-headline-md text-headline-md text-on-surface">Study Hours</h3>
+              <p className="font-label-sm text-on-surface-variant">
+                Tracking your focus time across the last {range === 'week' ? '7 days' : '4 weeks'}
+              </p>
             </div>
             <div className="flex gap-sm">
               <button
@@ -68,37 +93,46 @@ export function LearningAnalyticsPage() {
               </button>
             </div>
           </div>
-          <LineChart points={studyHours} />
+          {studyHours.every((p) => p.value === 0) ? (
+            <p className="text-on-surface-variant text-center py-xl">No study sessions logged in this period yet.</p>
+          ) : (
+            <LineChart points={studyHours} />
+          )}
         </GlassCard>
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
         <GlassCard className="lg:col-span-7 p-lg">
           <h3 className="font-headline-md text-headline-md mb-lg">Quiz Scores by Subject</h3>
-          <BarChart bars={quizScores} />
+          {quizScores.length === 0 ? (
+            <p className="text-on-surface-variant text-center py-xl">Complete a quiz to see your scores here.</p>
+          ) : (
+            <BarChart bars={quizScores} />
+          )}
         </GlassCard>
 
         <div className="lg:col-span-5 flex flex-col gap-md">
           <h3 className="font-headline-md text-headline-md">Topic Mastery</h3>
-          <div className="grid grid-cols-2 gap-md">
-            {topicMastery.map((topic) => (
-              <GlassCard key={topic.id} className="p-md flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
-                <div className="flex justify-between items-center">
-                  <span className={`px-sm py-xs rounded-full text-[10px] font-bold uppercase ${topic.categoryColorClass}`}>
-                    {topic.category}
-                  </span>
-                  <span className="font-label-sm font-bold">{topic.percent}%</span>
-                </div>
-                <p className="font-body-md font-semibold">{topic.topic}</p>
-                <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
-                  <div className={`h-full ${topic.colorClass}`} style={{ width: `${topic.percent}%` }} />
-                </div>
-              </GlassCard>
-            ))}
-          </div>
-          <button className="w-full py-md border border-primary/30 text-primary font-bold rounded-xl hover:bg-primary/5 transition-all">
-            View All Topics
-          </button>
+          {topicMastery.length === 0 ? (
+            <GlassCard className="p-lg text-center text-on-surface-variant">No topic mastery data yet.</GlassCard>
+          ) : (
+            <div className="grid grid-cols-2 gap-md">
+              {topicMastery.map((topic) => (
+                <GlassCard key={topic.id} className="p-md flex flex-col gap-sm hover:translate-y-[-4px] transition-transform">
+                  <div className="flex justify-between items-center">
+                    <span className={`px-sm py-xs rounded-full text-[10px] font-bold uppercase ${topic.categoryColorClass}`}>
+                      {topic.category}
+                    </span>
+                    <span className="font-label-sm font-bold">{topic.percent}%</span>
+                  </div>
+                  <p className="font-body-md font-semibold">{topic.topic}</p>
+                  <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div className={`h-full ${topic.colorClass}`} style={{ width: `${topic.percent}%` }} />
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -120,17 +154,19 @@ export function LearningAnalyticsPage() {
         <Heatmap cells={heatmapCells} monthLabels={monthLabels} />
       </GlassCard>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-        {insights.map((insight) => (
-          <GlassCard key={insight.id} className="p-lg flex flex-col gap-md">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${insight.iconBgClass} ${insight.iconColorClass}`}>
-              <MaterialIcon name={insight.icon} />
-            </div>
-            <h4 className="font-headline-md text-headline-md">{insight.title}</h4>
-            <p className="font-body-md text-on-surface-variant">{insight.body}</p>
-          </GlassCard>
-        ))}
-      </section>
+      {insights.length > 0 && (
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+          {insights.map((insight) => (
+            <GlassCard key={insight.id} className="p-lg flex flex-col gap-md">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${insight.iconBgClass} ${insight.iconColorClass}`}>
+                <MaterialIcon name={insight.icon} />
+              </div>
+              <h4 className="font-headline-md text-headline-md">{insight.title}</h4>
+              <p className="font-body-md text-on-surface-variant">{insight.body}</p>
+            </GlassCard>
+          ))}
+        </section>
+      )}
     </>
   );
 }
